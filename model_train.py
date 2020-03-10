@@ -1,7 +1,8 @@
 import tensorflow as tf
 from datetime import datetime
 from util import get_next_batch
-from captcha_gen import CAPTCHA_HEIGHT, CAPTCHA_WIDTH, CAPTCHA_LEN, CAPTCHA_LIST
+from config import CAPTCHA_HEIGHT, CAPTCHA_WIDTH, CAPTCHA_LEN, CAPTCHA_LIST, MODEL_DIR, PRESET_ACCURACY, FINAL_ACCURACY
+import os
 
 
 def weight_variable(shape, w_alpha=0.01):
@@ -149,11 +150,11 @@ def train(height=CAPTCHA_HEIGHT, width=CAPTCHA_WIDTH, y_size=len(CAPTCHA_LIST) *
     :param y_size:  验证码预备字符列表长度*验证码长度（默认为4）
     :return:
     """
+    target_accuracy = PRESET_ACCURACY  # 预设模型准确率标准
     # cnn 在图像大小是 2 的倍数时性能最高, 如果图像大小不是 2 的倍数，可以在图像边缘补无用像素
     # 在图像上补 2 行，下补 3 行，左补 2 行，右补 2 行
     # np.pad(image, ((2, 3), (2, 2)), 'constant', constant_values=(255,))
 
-    acc_rate = 0.95  # 预设模型准确率标准
     # 按照图片大小申请占位符
     x = tf.compat.v1.placeholder(tf.float32, [None, height * width])
     y = tf.compat.v1.placeholder(tf.float32, [None, y_size])
@@ -176,14 +177,14 @@ def train(height=CAPTCHA_HEIGHT, width=CAPTCHA_WIDTH, y_size=len(CAPTCHA_LIST) *
         # 每训练 100 次测试一次
         if step % 100 == 0:
             batch_x_test, batch_y_test = get_next_batch(100)
-            acc = sess.run(accuracy, feed_dict={x: batch_x_test, y: batch_y_test, keep_prob: 1.0})
-            print(datetime.now().strftime('%c'), ' step:', step, ' accuracy:', acc)
+            current_accuracy = sess.run(accuracy, feed_dict={x: batch_x_test, y: batch_y_test, keep_prob: 1.0})
+            print(datetime.now().strftime('%c'), ' step:', step, ' accuracy:', current_accuracy)
             # 准确率满足要求，保存模型
-            if acc > acc_rate:
-                model_path = "model/sample.model"
+            if current_accuracy > target_accuracy:
+                model_path = os.path.join(MODEL_DIR, "captcha-model")
                 saver.save(sess, model_path, global_step=step)
-                acc_rate += 0.01
-                if acc_rate > 0.99:  # 准确率达到99%则退出
+                target_accuracy += 0.01
+                if target_accuracy > FINAL_ACCURACY:  # 准确率达到 FINAL_ACCURACY 则退出
                     break
         step += 1
     sess.close()

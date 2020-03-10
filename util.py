@@ -1,6 +1,34 @@
+import os
+import re
+import random
 import numpy as np
-from captcha_gen import get_captcha_text_and_image
-from captcha_gen import CAPTCHA_LIST, CAPTCHA_LEN, CAPTCHA_HEIGHT, CAPTCHA_WIDTH
+from PIL import Image
+from config import CAPTCHA_LIST, CAPTCHA_LEN, CAPTCHA_HEIGHT, CAPTCHA_WIDTH, BASE_DIR, SAMPLE_DIR
+
+
+def get_captcha_text_and_image(captcha_list):
+    """
+    :return: 验证码字符串，验证码图像 numpy 数组
+    """
+    captcha_index = random.randint(0, len(captcha_list) - 1)
+    filepath = captcha_list[captcha_index][1]
+    # 读取
+    captcha_image = Image.open(filepath)
+    # 转化为 numpy 数组
+    captcha_image = np.array(captcha_image)
+    return captcha_list[captcha_index][0], captcha_image
+
+
+def get_captcha_list(path):
+    captcha_list = []
+    for entry in os.scandir(path):
+        captcha = []
+        captcha_match = re.match(r'(\d{2,6})_[0-9a-z]{32}\.[a-z]{3}', entry.name)
+        if entry.is_file() and captcha_match:
+            captcha.append(captcha_match.group(1))
+            captcha.append(entry.path)
+            captcha_list.append(captcha)
+    return captcha_list
 
 
 def convert2gray(numpy_image):
@@ -55,7 +83,7 @@ def get_next_batch(batch_count=60, width=CAPTCHA_WIDTH, height=CAPTCHA_HEIGHT):
     batch_x = np.zeros([batch_count, width * height])
     batch_y = np.zeros([batch_count, CAPTCHA_LEN * len(CAPTCHA_LIST)])
     for i in range(batch_count):  # 生成对应的训练集
-        text, image = get_captcha_text_and_image()
+        text, image = get_captcha_text_and_image(get_captcha_list(SAMPLE_DIR))
         image = convert2gray(image)  # 转灰度numpy
         # 将图片数组一维化 同时将文本也对应在两个二维组的同一行
         batch_x[i, :] = image.flatten() / 255
