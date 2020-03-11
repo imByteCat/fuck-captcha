@@ -4,4 +4,3 @@ Packages:
  - tensorflow
  - Pillow
  - ~~captcha~~
- 
