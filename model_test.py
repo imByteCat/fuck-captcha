@@ -14,6 +14,7 @@ def captcha2text(image_list, height=CAPTCHA_HEIGHT, width=CAPTCHA_WIDTH):
     :param width:
     :return:
     """
+    tf.compat.v1.reset_default_graph()
     x = tf.compat.v1.placeholder(tf.float32, [None, height * width])
     keep_prob = tf.compat.v1.placeholder(tf.float32)
     y_conv = cnn_graph(x, keep_prob, (height, width))
@@ -29,10 +30,16 @@ def captcha2text(image_list, height=CAPTCHA_HEIGHT, width=CAPTCHA_WIDTH):
 
 if __name__ == '__main__':
     tf.compat.v1.disable_eager_execution()
-    text, image = get_captcha_text_and_image(get_captcha_list(SAMPLE_DIR))
-    img = Image.fromarray(image)
-    image = convert2gray(image)
-    image = image.flatten() / 255
-    pre_text = captcha2text([image])
-    print("验证码正确值:", text, ' 模型预测值:', pre_text)
-    img.show()
+    TEST_NUMBER = int(input("Test number: "))
+    success_number = 0
+    for test in range(TEST_NUMBER):
+        text, image = get_captcha_text_and_image(get_captcha_list(SAMPLE_DIR))
+        # img = Image.fromarray(image)
+        # img.show()
+        image = convert2gray(image)
+        image = image.flatten() / 255
+        predict_text = captcha2text([image])[0]
+        print("验证码正确值：%s 模型预测值：%s" % (text, predict_text))
+        if predict_text == text:
+            success_number += 1
+    print("本次测试准确率：%.2f" % (success_number / TEST_NUMBER))
