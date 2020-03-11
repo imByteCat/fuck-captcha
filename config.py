@@ -6,7 +6,7 @@ LOW_CASE = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n'
 UP_CASE = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U',
            'V', 'W', 'X', 'Y', 'Z']
 
-CAPTCHA_LIST = NUMBER  # 定义验证码字符表
+CHARSET_LIST = NUMBER  # 定义验证码字符表
 CAPTCHA_LEN = 2  # 验证码长度
 CAPTCHA_HEIGHT = 70  # 验证码高度
 CAPTCHA_WIDTH = 200  # 验证码宽度

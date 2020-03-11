@@ -2,7 +2,7 @@ import tensorflow as tf
 from model_train import cnn_graph
 from util import get_captcha_text_and_image, get_captcha_list
 from util import vec2text, convert2gray
-from config import CAPTCHA_LIST, CAPTCHA_WIDTH, CAPTCHA_HEIGHT, CAPTCHA_LEN, MODEL_DIR, SAMPLE_DIR
+from config import CHARSET_LIST, CAPTCHA_WIDTH, CAPTCHA_HEIGHT, CAPTCHA_LEN, MODEL_DIR, SAMPLE_DIR
 from PIL import Image
 
 
@@ -20,7 +20,7 @@ def captcha2text(image_list, height=CAPTCHA_HEIGHT, width=CAPTCHA_WIDTH):
     saver = tf.compat.v1.train.Saver()
     with tf.compat.v1.Session() as sess:
         saver.restore(sess, tf.train.latest_checkpoint(MODEL_DIR))
-        predict = tf.argmax(input=tf.reshape(y_conv, [-1, CAPTCHA_LEN, len(CAPTCHA_LIST)]), axis=2)
+        predict = tf.argmax(input=tf.reshape(y_conv, [-1, CAPTCHA_LEN, len(CHARSET_LIST)]), axis=2)
         vector_list = sess.run(predict, feed_dict={x: image_list, keep_prob: 1})
         vector_list = vector_list.tolist()
         text_list = [vec2text(vector) for vector in vector_list]

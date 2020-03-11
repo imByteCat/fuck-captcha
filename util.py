@@ -3,7 +3,7 @@ import re
 import random
 import numpy as np
 from PIL import Image
-from config import CAPTCHA_LIST, CAPTCHA_LEN, CAPTCHA_HEIGHT, CAPTCHA_WIDTH, BASE_DIR, SAMPLE_DIR
+from config import CHARSET_LIST, CAPTCHA_LEN, CAPTCHA_HEIGHT, CAPTCHA_WIDTH, SAMPLE_DIR
 
 
 def get_captcha_text_and_image(captcha_list):
@@ -31,6 +31,9 @@ def get_captcha_list(path):
     return captcha_list
 
 
+CAPTCHA_LIST = get_captcha_list(SAMPLE_DIR)
+
+
 def convert2gray(numpy_image):
     """
     图片转为黑白，三维转一维
@@ -42,7 +45,7 @@ def convert2gray(numpy_image):
     return numpy_image
 
 
-def text2vec(text, captcha_len=CAPTCHA_LEN, captcha_list=CAPTCHA_LIST):
+def text2vec(text, captcha_len=CAPTCHA_LEN, captcha_list=CHARSET_LIST):
     """
     文本转为向量
     :param text:
@@ -60,7 +63,7 @@ def text2vec(text, captcha_len=CAPTCHA_LEN, captcha_list=CAPTCHA_LIST):
     return vector
 
 
-def vec2text(vec, captcha_list=CAPTCHA_LIST):
+def vec2text(vec, captcha_list=CHARSET_LIST):
     """
     向量转为文本
     :param vec:
@@ -81,9 +84,9 @@ def get_next_batch(batch_count=60, width=CAPTCHA_WIDTH, height=CAPTCHA_HEIGHT):
     :return: batch_x, batch_y
     """
     batch_x = np.zeros([batch_count, width * height])
-    batch_y = np.zeros([batch_count, CAPTCHA_LEN * len(CAPTCHA_LIST)])
+    batch_y = np.zeros([batch_count, CAPTCHA_LEN * len(CHARSET_LIST)])
     for i in range(batch_count):  # 生成对应的训练集
-        text, image = get_captcha_text_and_image(get_captcha_list(SAMPLE_DIR))
+        text, image = get_captcha_text_and_image(CAPTCHA_LIST)
         image = convert2gray(image)  # 转灰度numpy
         # 将图片数组一维化 同时将文本也对应在两个二维组的同一行
         batch_x[i, :] = image.flatten() / 255

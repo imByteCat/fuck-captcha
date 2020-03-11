@@ -1,7 +1,7 @@
 import tensorflow as tf
 from datetime import datetime
 from util import get_next_batch
-from config import CAPTCHA_HEIGHT, CAPTCHA_WIDTH, CAPTCHA_LEN, CAPTCHA_LIST, MODEL_DIR, PRESET_ACCURACY, FINAL_ACCURACY
+from config import CAPTCHA_HEIGHT, CAPTCHA_WIDTH, CAPTCHA_LEN, CHARSET_LIST, MODEL_DIR, PRESET_ACCURACY, FINAL_ACCURACY
 import os
 
 
@@ -46,7 +46,7 @@ def max_pool_2x2(x):
     return tf.nn.max_pool2d(input=x, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME')
 
 
-def cnn_graph(x, keep_prob, size, captcha_list=CAPTCHA_LIST, captcha_len=CAPTCHA_LEN):
+def cnn_graph(x, keep_prob, size, captcha_list=CHARSET_LIST, captcha_len=CAPTCHA_LEN):
     """
     三层卷积神经网络
     :param x:           训练集 image x
@@ -121,7 +121,7 @@ def optimize_graph(y, y_conv):
     return optimizer
 
 
-def accuracy_graph(y, y_conv, width=len(CAPTCHA_LIST), height=CAPTCHA_LEN):
+def accuracy_graph(y, y_conv, width=len(CHARSET_LIST), height=CAPTCHA_LEN):
     """
     偏差计算图，正确值和预测值，计算准确度
     :param y: 正确值 标签
@@ -142,7 +142,7 @@ def accuracy_graph(y, y_conv, width=len(CAPTCHA_LIST), height=CAPTCHA_LEN):
     return accuracy
 
 
-def train(height=CAPTCHA_HEIGHT, width=CAPTCHA_WIDTH, y_size=len(CAPTCHA_LIST) * CAPTCHA_LEN):
+def train(height=CAPTCHA_HEIGHT, width=CAPTCHA_WIDTH, y_size=len(CHARSET_LIST) * CAPTCHA_LEN):
     """
     cnn训练
     :param height: 验证码高度
